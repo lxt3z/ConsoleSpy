@@ -1,0 +1,29 @@
+# = Main = #
+help-message: "&6&lSpy&r &7| &fUsage: &7/console [on|off|hide|list|ignore]"
+no-permission: "&6&lSpy&r &7| &fYou don't have enough permissions to execute this command.!"
+spy-on: "&6&lSpy&r &7| &fYou &ahave enabled&f spy mode."
+spy-off: "&6&lSpy&r &7| &fYou &have turned on&f Spy mode."
+already-spying: "&6&lSpy&r &7| &fYou are already in &cSpy&f mode."
+not-spying: "&6&lSpy&r &7| &fYou are not in &7spy&f mode."
+info-message: "&6&lSpy&r &7| &fPlayer &7%player% &fexecuted the command&7:&f &6%command%"
+
+# = Guard = #
+hide-on: "&6&lSpy&f&lProtect&r &7| &fNow your commands &7are revealed&f from observation."
+hide-off: "&6&lSpy&f&lProtect&r &7| &cYou are no longer &7hidden&c."
+already-hidden: "&6&lSpy&f&lProtect&r &7| &fYou are already &7hidden&c."
+not-hidden: "&6&lSpy&f&lProtect&r &7| &cYou weren't &7hidden&c."
+hide-help: "&6&lSpy&f&lProtect&r &7| &fUsage: &7/console hide [on/off]"
+
+# = Ignoring = #
+player-ignored: "&6&lSpy&f&lIgnore&r &7| &fNow you're ignoring &7%player%"
+player-already-ignored: "&6&lSpy&f&lIgnore&r &7| &fPlayer &7%player%&f already &cignored&f."
+player-unignored: "&6&lSpy&f&lIgnore&r &7| &fYou are no longer ignoring &7%player%"
+player-not-ignored: "&6&lSpy&f&lIgnore&r &7| &fYou didn't ignore &7%player%"
+ignore-help: "&6&lSpy&f&lIgnore&r &7| &fUsage: &7/console ignore [ник]"
+ignore-off-help: "&6&lSpy&f&lIgnore&r &7| &fSpecify the player's nickname to disable the ignore"
+
+# = Active watchers = #
+list-header: "&7[&6&lSpy&f&lList&r&7] &fActive:\n "
+
+# = Errors = #
+unknown-command: "&6&lSpy&c&lError&r &7| &fUnknown command :("

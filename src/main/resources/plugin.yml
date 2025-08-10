@@ -1,0 +1,26 @@
+name: ConsoleSpy
+version: '${project.version}'
+main: su.lxt3z.consolespy.Main
+api-version: '1.16'
+authors: [ lxt3z ]
+depend: [ProtocolLib]
+commands:
+  console:
+    usage: /console <on|off|hide|list|ignore [nick]>
+    permission: console.use
+
+permissions:
+  console.use:
+    default: false
+
+  console.spy:
+    default: false
+
+  console.hide:
+    default: false
+
+  console.ignore:
+    default: false
+
+  console.reload:
+    default: false

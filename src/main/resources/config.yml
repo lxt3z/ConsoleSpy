@@ -1,0 +1,13 @@
+ignore-commands:
+  - "/l"
+  - "/login"
+  - "/reg"
+  - "/mail"
+  - "/pas"
+  - "/pass"
+  - "/register"
+  - "/changepassword"
+  - "/email"
+  - "/gamerconpassword"
+  - "/gamercon"
+command-repeat-limit: 2
