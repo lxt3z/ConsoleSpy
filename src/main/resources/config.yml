@@ -1,3 +1,4 @@
+# Commands that are ignored in Spy
 ignore-commands:
   - "/l"
   - "/login"
@@ -10,4 +11,14 @@ ignore-commands:
   - "/email"
   - "/gamerconpassword"
   - "/gamercon"
-command-repeat-limit: 2
+
+# Logging settings
+logging:
+  enabled: false          # Enable/disable logging
+  path: plugins/ConsoleSpy/command_logs.txt  # The path to the logs file
+  format: "[%date%] %player%: %command%"     # Log recording format (use %date%, %player%, %command%)
+  max-size-mb: 10       # Maximum log file size in megabytes before rotation
+  rotate: true          # Enable log rotation when the size is exceeded
+  timestamp-format: "yyyy-MM-dd HH:mm:ss"  # Timestamp format (unless specified in %date%)
+  append: true          # Add to the end of the file or overwrite (true = add)
+  compression: false    # Enable compression of old logs
