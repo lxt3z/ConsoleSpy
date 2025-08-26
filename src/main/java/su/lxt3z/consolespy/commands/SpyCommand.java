@@ -9,144 +9,147 @@ import su.lxt3z.consolespy.Main;
 import java.util.List;
 
 public class SpyCommand implements CommandExecutor {
-    private final Main plugin;
+    private final MessageManager messageManager;
+    private final PlayerData playerData;
 
     public SpyCommand(Main plugin) {
-        this.plugin = plugin;
+        this.messageManager = plugin.getMessageManager();
+        this.playerData = Main.getPlayerData();
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player player) || !cmd.getName().equalsIgnoreCase("console")) {
-            return false;
-        }
-
-        if (args.length == 0) {
-            player.sendMessage(getMessage("help-message"));
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("The commands are available only to the players!");
             return true;
         }
 
-        String sub = args[0].toLowerCase();
-        switch (sub) {
+        UUID playerUuid = player.getUniqueId();
+
+        if (args.length == 0) {
+            player.sendMessage(messageManager.getMessage("help-message"));
+            return true;
+        }
+
+        String subCommand = args[0].toLowerCase();
+
+        switch (subCommand) {
             case "on":
-                handleSpyOn(player);
-                break;
+                if (!player.hasPermission("console.use")) {
+                    player.sendMessage(messageManager.getMessage("no-permission"));
+                    return true;
+                }
+                if (playerData.isSpying(playerUuid)) {
+                    player.sendMessage(messageManager.getMessage("already-spying"));
+                    return true;
+                }
+                playerData.setSpying(playerUuid, player.getName(), true);
+                player.sendMessage(messageManager.getMessage("spy-on"));
+                return true;
+
             case "off":
-                handleSpyOff(player);
-                break;
+                if (!player.hasPermission("console.use")) {
+                    player.sendMessage(messageManager.getMessage("no-permission"));
+                    return true;
+                }
+                if (!playerData.isSpying(playerUuid)) {
+                    player.sendMessage(messageManager.getMessage("not-spying"));
+                    return true;
+                }
+                playerData.setSpying(playerUuid, player.getName(), false);
+                player.sendMessage(messageManager.getMessage("spy-off"));
+                return true;
+
             case "hide":
-                handleHide(player, args);
-                break;
+                if (!player.hasPermission("console.hide")) {
+                    player.sendMessage(messageManager.getMessage("no-permission"));
+                    return true;
+                }
+                if (args.length < 2) {
+                    player.sendMessage(messageManager.getMessage("hide-help"));
+                    return true;
+                }
+                String hideArg = args[1].toLowerCase();
+                if ("on".equals(hideArg)) {
+                    if (playerData.isHiding(playerUuid)) {
+                        player.sendMessage(messageManager.getMessage("already-hidden"));
+                        return true;
+                    }
+                    playerData.setHiding(playerUuid, true);
+                    player.sendMessage(messageManager.getMessage("hide-on"));
+                } else if ("off".equals(hideArg)) {
+                    if (!playerData.isHiding(playerUuid)) {
+                        player.sendMessage(messageManager.getMessage("not-hidden"));
+                        return true;
+                    }
+                    playerData.setHiding(playerUuid, false);
+                    player.sendMessage(messageManager.getMessage("hide-off"));
+                } else {
+                    player.sendMessage(messageManager.getMessage("hide-help"));
+                }
+                return true;
+
             case "list":
-                handleList(player);
-                break;
+                if (!player.hasPermission("console.use")) {
+                    player.sendMessage(messageManager.getMessage("no-permission"));
+                    return true;
+                }
+                player.sendMessage(messageManager.getMessage("list-header"));
+                for (String spy : playerData.getSpies()) {
+                    player.sendMessage(" - " + spy);
+                }
+                return true;
+
             case "ignore":
-                handleIgnore(player, args);
-                break;
+                if (!player.hasPermission("console.ignore")) {
+                    player.sendMessage(messageManager.getMessage("no-permission"));
+                    return true;
+                }
+                if (args.length < 2) {
+                    player.sendMessage(messageManager.getMessage("ignore-help"));
+                    return true;
+                }
+
+                String targetName = args[1];
+                Player targetPlayer = Bukkit.getPlayer(targetName);
+                UUID targetUuid = null;
+
+                if (targetPlayer != null) {
+                    targetUuid = targetPlayer.getUniqueId();
+                } else {
+                    for (UUID uuid : playerData.getSpiesUuids()) {
+                        String name = playerData.getPlayerName(uuid);
+                        if (name != null && name.equalsIgnoreCase(targetName)) {
+                            targetUuid = uuid;
+                            break;
+                        }
+                    }
+                }
+
+                if (targetUuid == null) {
+                    player.sendMessage(messageManager.getMessage("player-not-found").replace("%player%", targetName));
+                    return true;
+                }
+
+                if (args.length >= 3 && "off".equalsIgnoreCase(args[1])) {
+                    targetName = args[2];
+                    if (playerData.removeIgnoredPlayer(targetUuid)) {
+                        player.sendMessage(messageManager.getMessage("player-unignored").replace("%player%", targetName));
+                    } else {
+                        player.sendMessage(messageManager.getMessage("player-not-ignored").replace("%player%", targetName));
+                    }
+                } else {
+                    if (playerData.addIgnoredPlayer(targetUuid)) {
+                        player.sendMessage(messageManager.getMessage("player-ignored").replace("%player%", targetName));
+                    } else {
+                        player.sendMessage(messageManager.getMessage("player-already-ignored").replace("%player%", targetName));
+                    }
+                }
+                return true;
+
             default:
-                player.sendMessage(getMessage("unknown-command"));
+                player.sendMessage(messageManager.getMessage("unknown-command"));
+                return true;
         }
-        return true;
-    }
-
-    private void handleSpyOn(Player player) {
-        if (!player.hasPermission("console.use")) {
-            noPerm(player);
-            return;
-        }
-        if (!Main.getPlayerData().isSpying(player.getName())) {
-            Main.getPlayerData().addSpy(player.getName());
-            player.sendMessage(getMessage("spy-on"));
-        } else {
-            player.sendMessage(getMessage("already-spying"));
-        }
-    }
-
-    private void handleSpyOff(Player player) {
-        if (!player.hasPermission("console.use")) {
-            noPerm(player);
-            return;
-        }
-        if (Main.getPlayerData().isSpying(player.getName())) {
-            Main.getPlayerData().removeSpy(player.getName());
-            player.sendMessage(getMessage("spy-off"));
-        } else {
-            player.sendMessage(getMessage("not-spying"));
-        }
-    }
-
-    private void handleHide(Player player, String[] args) {
-        if (!player.hasPermission("console.hide")) {
-            noPerm(player);
-            return;
-        }
-        if (args.length < 2) {
-            player.sendMessage(getMessage("hide-help"));
-            return;
-        }
-        String state = args[1].toLowerCase();
-        if (state.equals("on")) {
-            if (!Main.getPlayerData().isHidden(player.getName())) {
-                Main.getPlayerData().addHidden(player.getName());
-                player.sendMessage(getMessage("hide-on"));
-            } else {
-                player.sendMessage(getMessage("already-hidden"));
-            }
-        } else if (state.equals("off")) {
-            if (Main.getPlayerData().isHidden(player.getName())) {
-                Main.getPlayerData().removeHidden(player.getName());
-                player.sendMessage(getMessage("hide-off"));
-            } else {
-                player.sendMessage(getMessage("not-hidden"));
-            }
-        } else {
-            player.sendMessage(getMessage("hide-help"));
-        }
-    }
-
-    private void handleList(Player player) {
-        List<String> spys = Main.getPlayerData().getSpys();
-        String list = String.join(", ", spys);
-        player.sendMessage(getMessage("list-header") + " " + list);
-    }
-
-    private void handleIgnore(Player player, String[] args) {
-        if (!player.hasPermission("console.ignore")) {
-            noPerm(player);
-            return;
-        }
-        if (args.length < 2) {
-            player.sendMessage(getMessage("ignore-help"));
-            return;
-        }
-        String target = args[1];
-        if (target.equalsIgnoreCase("off")) {
-            if (args.length < 3) {
-                player.sendMessage(getMessage("ignore-off-help"));
-                return;
-            }
-            String targetOff = args[2];
-            if (Main.getPlayerData().isIgnored(player.getName(), targetOff)) {
-                Main.getPlayerData().unignore(player.getName(), targetOff);
-                player.sendMessage(getMessage("player-unignored").replace("%player%", targetOff));
-            } else {
-                player.sendMessage(getMessage("player-not-ignored").replace("%player%", targetOff));
-            }
-        } else {
-            if (Main.getPlayerData().isIgnored(player.getName(), target)) {
-                player.sendMessage(getMessage("player-already-ignored").replace("%player%", target));
-            } else {
-                Main.getPlayerData().ignore(player.getName(), target);
-                player.sendMessage(getMessage("player-ignored").replace("%player%", target));
-            }
-        }
-    }
-
-    private String getMessage(String key) {
-        return plugin.getMessageManager().getMessage(key);
-    }
-
-    private void noPerm(Player player) {
-        player.sendMessage(getMessage("no-permission"));
     }
 }
