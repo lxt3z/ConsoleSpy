@@ -22,3 +22,6 @@ logging:
   timestamp-format: "yyyy-MM-dd HH:mm:ss"  # Timestamp format (unless specified in %date%)
   append: true          # Add to the end of the file or overwrite (true = add)
   compression: false    # Enable compression of old logs
+
+# Auto-save data in seconds
+auto-save-interval: 300
