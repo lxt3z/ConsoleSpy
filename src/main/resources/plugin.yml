@@ -11,16 +11,16 @@ commands:
 
 permissions:
   console.use:
-    default: false
+    default: op
 
   console.spy:
-    default: false
+    default: op
 
   console.hide:
-    default: false
+    default: op
 
   console.ignore:
-    default: false
+    default: op
 
   console.reload:
-    default: false
+    default: op
